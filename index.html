@@ -1,0 +1,2952 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drones Bioinspirados · Agricultura Sostenible</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --green: #00ff88;
+      --green2: #00e57a;
+      --lime: #aaff00;
+      --dark: #030a06;
+      --dark2: #071209;
+      --mid: #0d2118;
+      --surface: #0f261a;
+      --surface2: #1a3d28;
+      --text: #c8f0dc;
+      --muted: #5a8a70;
+      --white: #f0fff8;
+      --amber: #ffcc00;
+      --sky: #00d4ff;
+      --red: #ff4466;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    /* =========================
+   COMPRA / RECOMENDADOR UI
+========================= */
+
+#compra {
+  background:
+    radial-gradient(circle at top right,
+      rgba(0, 255, 136, 0.08),
+      transparent 30%),
+    linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#compra::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.compra-ui {
+  margin-top: 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* GRID BOTONES */
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+/* BOTÓN */
+
+.task-btn {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg,
+      rgba(15, 38, 26, 0.95),
+      rgba(8, 20, 13, 0.98));
+  border: 1px solid rgba(0, 255, 136, 0.12);
+  padding: 1.6rem 1.3rem;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  cursor: none;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    0 100%
+  );
+}
+
+.task-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg,
+      rgba(0,255,136,0.10),
+      transparent 45%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.task-btn::after {
+  content: '';
+  position: absolute;
+  top: -120%;
+  left: -40%;
+  width: 60%;
+  height: 300%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  transform: rotate(25deg);
+  transition: 0.8s ease;
+}
+
+.task-btn:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0,255,136,0.4);
+  box-shadow:
+    0 12px 40px rgba(0,255,136,0.10),
+    inset 0 0 0 1px rgba(0,255,136,0.06);
+}
+
+.task-btn:hover::before {
+  opacity: 1;
+}
+
+.task-btn:hover::after {
+  left: 120%;
+}
+
+.task-btn.active {
+  border-color: var(--green);
+  background:
+    linear-gradient(145deg,
+      rgba(0,255,136,0.12),
+      rgba(15,38,26,1));
+  box-shadow:
+    0 0 25px rgba(0,255,136,0.18),
+    inset 0 0 0 1px rgba(0,255,136,0.15);
+}
+
+.task-icon {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(0,255,136,0.2));
+}
+
+.task-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 1.6;
+  max-width: 180px;
+}
+
+/* EFECTO ESQUINA */
+
+.task-btn .corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border-left: 1px solid var(--green);
+  border-bottom: 1px solid var(--green);
+}
+
+/* CAJA RECOMENDACIÓN */
+
+.recommendation-box {
+  margin-top: 2.5rem;
+  position: relative;
+  padding: 2rem;
+  background:
+    linear-gradient(145deg,
+      rgba(12, 28, 19, 0.98),
+      rgba(5, 14, 8, 0.98));
+  border: 1px solid rgba(0,255,136,0.18);
+  overflow: hidden;
+  animation: revealRec 0.5s ease;
+}
+
+.recommendation-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(0,255,136,0.06),
+      transparent 40%);
+  pointer-events: none;
+}
+
+.recommendation-box::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--green),
+    transparent
+  );
+  animation: scanner 3s linear infinite;
+}
+
+.rec-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 1rem;
+}
+
+.rec-drone-name {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.5rem, 4vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.rec-reason {
+  max-width: 700px;
+  font-size: 0.78rem;
+  line-height: 1.9;
+  color: var(--muted);
+}
+
+.rec-amazon-btn {
+  margin-top: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.6rem;
+  background: var(--green);
+  color: var(--dark);
+  text-decoration: none;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 800;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    0 100%
+  );
+}
+
+.rec-amazon-btn:hover {
+  background: var(--lime);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(170,255,0,0.22);
+}
+
+/* TABLA MEJORADA */
+
+.compare-section {
+  margin-top: 5rem;
+  position: relative;
+  border: 1px solid rgba(0,255,136,0.08);
+  background:
+    linear-gradient(180deg,
+      rgba(15,38,26,0.65),
+      rgba(5,14,8,0.92));
+  overflow: hidden;
+}
+
+.compare-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(0,255,136,0.04),
+      transparent 30%);
+  pointer-events: none;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.compare-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(5, 14, 8, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.compare-table tr {
+  transition: background 0.25s ease;
+}
+
+.compare-table tbody tr:hover {
+  background: rgba(0,255,136,0.04);
+}
+
+.compare-table td,
+.compare-table th {
+  position: relative;
+}
+
+.compare-table td::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 1px;
+  background: rgba(255,255,255,0.03);
+}
+
+.compare-table tbody tr:last-child td::after {
+  display: none;
+}
+
+.td-name {
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 0.08em;
+}
+
+/* DOTS */
+
+.dots {
+  gap: 5px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255,255,255,0.15);
+  transform: scale(0);
+  transition: transform 0.3s ease;
+}
+
+tr:hover .dot::after {
+  transform: scale(1);
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-btn {
+    min-height: 120px;
+  }
+
+  .recommendation-box {
+    padding: 1.5rem;
+  }
+
+  .rec-drone-name {
+    font-size: 1.8rem;
+  }
+
+  .compare-section {
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* ANIMACIONES */
+
+@keyframes revealRec {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scanner {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+    /* CUSTOM CURSOR */
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--green);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s;
+      mix-blend-mode: screen;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--green);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease;
+      opacity: 0.5;
+    }
+
+    /* CANVAS */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(3, 10, 6, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1rem;
+      color: var(--green);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--lime);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      transition: all 0.25s;
+    }
+
+    .nav-links a:hover {
+      color: var(--green);
+      border-color: rgba(0, 255, 136, 0.3);
+      background: rgba(0, 255, 136, 0.05);
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 7rem 5vw 5rem;
+    }
+
+    /* HERO */
+    #hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding-top: 6rem;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.8rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 0.95;
+      color: var(--white);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.5s forwards;
+      max-width: 900px;
+    }
+
+    .hero-title .accent {
+      color: var(--green);
+      display: block;
+    }
+
+    .hero-title .accent2 {
+      color: var(--lime);
+    }
+
+    .hero-sub {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      color: var(--muted);
+      margin-top: 1.5rem;
+      max-width: 500px;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.7s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.9s forwards;
+    }
+
+    .btn-primary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--dark);
+      background: var(--green);
+      border: none;
+      padding: 0.9rem 2rem;
+      cursor: none;
+      text-decoration: none;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+      transition: all 0.25s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: var(--lime);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .btn-ghost {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      background: transparent;
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      padding: 0.9rem 2rem;
+      cursor: none;
+      text-decoration: none;
+      transition: all 0.25s;
+      display: inline-block;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--green);
+      background: rgba(0, 255, 136, 0.05);
+    }
+
+    .hero-drone-visual {
+      position: absolute;
+      right: -5%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: min(600px, 55vw);
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeIn 1.5s 1s forwards;
+    }
+
+    .hero-stats {
+      position: absolute;
+      bottom: 3rem;
+      right: 5vw;
+      display: flex;
+      gap: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 1.2s forwards;
+    }
+
+    .stat-item {
+      text-align: right;
+    }
+
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--green);
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 5vw;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeIn 1s 1.5s forwards;
+    }
+
+    .scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--green);
+      transform-origin: left;
+      animation: lineGrow 1s 1.8s both;
+    }
+
+    .scroll-text {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* SECTION HEADERS */
+    .section-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-tag::before {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+      max-width: 700px;
+    }
+
+    .section-title .hl {
+      color: var(--green);
+    }
+
+    /* WHAT IS A DRONE */
+    #que-es {
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 4rem;
+      align-items: center;
+    }
+
+    .component-list {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .comp-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.08);
+      border-left: 3px solid var(--green);
+      cursor: default;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comp-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0, 255, 136, 0.05) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .comp-item:hover {
+      transform: translateX(6px);
+      border-left-color: var(--lime);
+    }
+
+    .comp-item:hover::before {
+      opacity: 1;
+    }
+
+    .comp-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 0.1rem;
+    }
+
+    .comp-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .comp-desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* DRONE SVG DIAGRAM */
+    .drone-diagram {
+      position: relative;
+    }
+
+    .drone-diagram svg {
+      width: 100%;
+      filter: drop-shadow(0 0 40px rgba(0, 255, 136, 0.2));
+    }
+
+    /* TIPOS */
+    #tipos {
+      background: var(--dark2);
+    }
+
+    .types-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .type-card {
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.1);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: all 0.35s;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    }
+
+    .type-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      border-bottom: 1px solid var(--green);
+      border-left: 1px solid var(--green);
+      transition: all 0.3s;
+    }
+
+    .type-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0, 255, 136, 0.4);
+    }
+
+    .type-card:hover::after {
+      width: 30px;
+      height: 30px;
+    }
+
+    .type-card .bg-num {
+      position: absolute;
+      top: -0.5rem;
+      right: 1rem;
+      font-family: 'Orbitron', monospace;
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(0, 255, 136, 0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .type-img-area {
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(0, 255, 136, 0.15);
+      position: relative;
+    }
+
+    .type-img-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.7) brightness(0.85);
+      transition: transform 0.5s ease, filter 0.4s ease;
+    }
+
+    .type-card:hover .type-img-area img {
+      transform: scale(1.06);
+      filter: saturate(1.1) brightness(1);
+    }
+
+    .type-img-area::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, var(--surface) 100%);
+      pointer-events: none;
+    }
+
+    .type-img-label {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.75rem;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      text-transform: uppercase;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .type-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .type-desc {
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .type-badge {
+      display: inline-block;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      border-radius: 1px;
+      font-weight: 700;
+    }
+
+    .badge-green {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .badge-amber {
+      background: rgba(255, 204, 0, 0.15);
+      color: var(--amber);
+      border: 1px solid rgba(255, 204, 0, 0.3);
+    }
+
+    .badge-sky {
+      background: rgba(0, 212, 255, 0.15);
+      color: var(--sky);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .type-stats {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .type-stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.6rem;
+    }
+
+    .stat-bar-label {
+      color: var(--muted);
+      min-width: 80px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .stat-bar-track {
+      flex: 1;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      animation: barGrow 1.5s 1s both;
+      transform-origin: left;
+    }
+
+    .fill-green {
+      background: var(--green);
+    }
+
+    .fill-amber {
+      background: var(--amber);
+    }
+
+    .fill-sky {
+      background: var(--sky);
+    }
+
+    /* COMPARATIVA TABLE */
+    .compare-section {
+      margin-top: 4rem;
+      overflow-x: auto;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.7rem;
+    }
+
+    .compare-table th {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+      background: var(--surface);
+    }
+
+    .compare-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .compare-table tr:hover td {
+      background: rgba(0, 255, 136, 0.03);
+      color: var(--text);
+    }
+
+    .compare-table .td-name {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .dot.on-g {
+      background: var(--green);
+    }
+
+    .dot.on-a {
+      background: var(--amber);
+    }
+
+    .dot.on-s {
+      background: var(--sky);
+    }
+
+    /* APLICACIONES */
+    #aplicaciones {
+      background: linear-gradient(180deg, var(--dark2) 0%, var(--dark) 100%);
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .app-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(0, 255, 136, 0.1);
+      filter: saturate(0.65) brightness(0.8);
+      transition: filter 0.4s;
+    }
+
+    .app-card:hover .app-img {
+      filter: saturate(1) brightness(0.95);
+    }
+
+    .app-card {
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.08);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: all 0.3s;
+    }
+
+    .app-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .app-number {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      color: var(--green);
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .app-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .app-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .app-desc {
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .app-tag {
+      display: inline-block;
+      margin-top: 1.25rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      opacity: 0.7;
+      border-top: 1px solid rgba(0, 255, 136, 0.2);
+      padding-top: 0.75rem;
+      width: 100%;
+    }
+
+    /* BIOINSPIRACIÓN */
+    #bioinspiración {
+      background: var(--dark);
+      overflow: hidden;
+    }
+
+    .bio-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      margin-top: 5rem;
+      align-items: start;
+    }
+
+    .bio-organism {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .organism-card {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.1);
+      position: relative;
+      cursor: default;
+      transition: all 0.3s;
+      overflow: hidden;
+    }
+
+    .organism-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--green);
+    }
+
+    .organism-card:hover {
+      border-color: rgba(0, 255, 136, 0.35);
+      transform: translateX(6px);
+    }
+
+    .organism-card:nth-child(2)::before {
+      background: var(--lime);
+    }
+
+    .organism-card:nth-child(3)::before {
+      background: var(--sky);
+    }
+
+    .org-emoji {
+      font-size: 3rem;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    .org-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+
+    .org-concept {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+
+    .org-desc {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .bio-benefits {
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.1);
+      padding: 2.5rem;
+      position: sticky;
+      top: 7rem;
+    }
+
+    .benefit-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.72rem;
+      color: var(--muted);
+      transition: color 0.25s;
+      cursor: default;
+    }
+
+    .benefit-item:hover {
+      color: var(--text);
+    }
+
+    .benefit-item::before {
+      content: '▸';
+      color: var(--green);
+      font-size: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .bio-quote {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(0, 255, 136, 0.04);
+      border-left: 3px solid var(--green);
+    }
+
+    .bio-quote p {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* CHECKLIST */
+    #practicas {
+      background: var(--dark2);
+    }
+
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .checklist-phase {
+      padding: 2rem;
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.08);
+      position: relative;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+    }
+
+    .phase-icon {
+      font-size: 1.5rem;
+    }
+
+    .phase-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      font-size: 0.7rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.2s;
+      user-select: none;
+    }
+
+    .check-item:hover {
+      color: var(--text);
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid rgba(0, 255, 136, 0.3);
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .check-item.checked .checkbox {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .check-item.checked .checkbox::after {
+      content: '✓';
+      color: var(--dark);
+      font-size: 0.6rem;
+      font-weight: 700;
+    }
+
+    .check-item.checked {
+      color: var(--green);
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    /* GLOSARIO */
+    #glosario {
+      background: var(--dark);
+    }
+
+    .glosario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 4rem;
+    }
+
+    .glos-item {
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid rgba(0, 255, 136, 0.08);
+      transition: all 0.25s;
+      cursor: default;
+    }
+
+    .glos-item:hover {
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .glos-term {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.5rem;
+    }
+
+    .glos-def {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* FAQ */
+    #faq {
+      background: var(--dark2);
+    }
+
+    .faq-list {
+      margin-top: 4rem;
+      max-width: 800px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 0;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      transition: color 0.2s;
+      gap: 1rem;
+      user-select: none;
+    }
+
+    .faq-question:hover {
+      color: var(--green);
+    }
+
+    .faq-arrow {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--green);
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-arrow {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 200px;
+      padding-bottom: 1.5rem;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 4rem 5vw 2rem;
+      background: var(--dark);
+      border-top: 1px solid rgba(0, 255, 136, 0.1);
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+
+    .footer-sub {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--green);
+    }
+
+    .footer-copy {
+      margin-top: 3rem;
+      font-size: 0.55rem;
+      color: rgba(90, 138, 112, 0.4);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes lineGrow {
+      from {
+        transform: scaleX(0);
+      }
+
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes barGrow {
+      from {
+        transform: scaleX(0);
+      }
+
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateY(-50%) translateY(-20px);
+      }
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4);
+      }
+
+      100% {
+        box-shadow: 0 0 0 20px rgba(0, 255, 136, 0);
+      }
+    }
+
+    @keyframes scanLine {
+      0% {
+        top: 0;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    /* REVEAL ON SCROLL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s, transform 0.7s;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* GLITCH */
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      font-family: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    .glitch::before {
+      color: var(--sky);
+      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+      transform: translateX(-3px);
+      animation: glitch1 3s infinite;
+    }
+
+    .glitch::after {
+      color: var(--red);
+      clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
+      transform: translateX(3px);
+      animation: glitch2 3s infinite;
+    }
+
+    @keyframes glitch1 {
+
+      0%,
+      90%,
+      100% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+
+      92% {
+        transform: translateX(-5px);
+        opacity: 0.8;
+      }
+
+      94% {
+        transform: translateX(3px);
+        opacity: 0.8;
+      }
+
+      96% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes glitch2 {
+
+      0%,
+      90%,
+      100% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+
+      93% {
+        transform: translateX(5px);
+        opacity: 0.8;
+      }
+
+      95% {
+        transform: translateX(-3px);
+        opacity: 0.8;
+      }
+
+      97% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+    }
+
+    /* SCAN LINE EFFECT */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      background: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px);
+    }
+
+    /* MOBILE */
+    @media (max-width: 900px) {
+
+      .grid-2,
+      .bio-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .types-grid,
+      .checklist-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-drone-visual {
+        display: none;
+      }
+
+      .hero-stats {
+        position: static;
+        margin-top: 3rem;
+        justify-content: flex-start;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      section {
+        padding: 6rem 1.5rem 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="scanlines"></div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Bio<span>Drone</span></div>
+    <ul class="nav-links">
+      <li><a href="#que-es">UAV</a></li>
+      <li><a href="#tipos">Tipos</a></li>
+      <li><a href="#aplicaciones">Aplicaciones</a></li>
+      <li><a href="#bioinspiración">Bioinspiración</a></li>
+      <li><a href="#practicas">Checklist</a></li>
+      <li><a href="#glosario">Glosario</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <p class="hero-eyebrow">▸ Anteproyecto académico · Agricultura de Precisión</p>
+    <h1 class="hero-title">
+      Drones
+      <span class="accent glitch" data-text="Bioinspirados">Bioinspirados</span>
+      para una
+      <span class="accent2">Agricultura</span>
+      Sostenible
+    </h1>
+    <p class="hero-sub">Tecnología inspirada en abejas, hormigas y aves para optimizar cultivos, ahorrar recursos y
+      reducir el impacto ambiental.</p>
+    <div class="hero-cta">
+      <a href="#que-es" class="btn-primary">Explorar proyecto</a>
+      <a href="#bioinspiración" class="btn-ghost">Ver bioinspiración</a>
+    </div>
+
+    <!-- SVG DRONE HERO -->
+    <div class="hero-drone-visual">
+      <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"
+        style="animation: float 4s ease-in-out infinite; animation-delay: 1s">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="glow2">
+            <feGaussianBlur stdDeviation="8" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <!-- Body -->
+        <rect x="200" y="220" width="100" height="60" rx="8" fill="#0f261a" stroke="#00ff88" stroke-width="1.5"
+          filter="url(#glow)" />
+        <rect x="215" y="233" width="70" height="35" rx="4" fill="#071209" stroke="#00ff8833" stroke-width="1" />
+        <!-- Arms -->
+        <line x1="200" y1="240" x2="120" y2="180" stroke="#00ff88" stroke-width="2" opacity="0.6" />
+        <line x1="300" y1="240" x2="380" y2="180" stroke="#00ff88" stroke-width="2" opacity="0.6" />
+        <line x1="200" y1="260" x2="120" y2="320" stroke="#00ff88" stroke-width="2" opacity="0.6" />
+        <line x1="300" y1="260" x2="380" y2="320" stroke="#00ff88" stroke-width="2" opacity="0.6" />
+        <!-- Motors -->
+        <circle cx="120" cy="180" r="18" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#glow)" />
+        <circle cx="380" cy="180" r="18" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#glow)" />
+        <circle cx="120" cy="320" r="18" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#glow)" />
+        <circle cx="380" cy="320" r="18" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#glow)" />
+        <!-- Propellers -->
+        <ellipse cx="120" cy="180" rx="45" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.5"
+          style="animation: none" />
+        <ellipse cx="380" cy="180" rx="45" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.5" />
+        <ellipse cx="120" cy="320" rx="45" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.5" />
+        <ellipse cx="380" cy="320" rx="45" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.5" />
+        <!-- Camera -->
+        <rect x="230" y="280" width="40" height="28" rx="4" fill="#071209" stroke="#00d4ff" stroke-width="1.5"
+          filter="url(#glow)" />
+        <circle cx="250" cy="294" r="8" fill="#030a06" stroke="#00d4ff" stroke-width="1.5" />
+        <circle cx="250" cy="294" r="4" fill="#00d4ff" opacity="0.3" />
+        <!-- Signal waves -->
+        <circle cx="250" cy="250" r="80" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.1" />
+        <circle cx="250" cy="250" r="120" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.07" />
+        <circle cx="250" cy="250" r="160" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.04" />
+        <!-- LED lights -->
+        <circle cx="120" cy="180" r="4" fill="#00ff88" filter="url(#glow2)" />
+        <circle cx="380" cy="180" r="4" fill="#00ff88" filter="url(#glow2)" />
+        <circle cx="120" cy="320" r="4" fill="#aaff00" filter="url(#glow2)" />
+        <circle cx="380" cy="320" r="4" fill="#aaff00" filter="url(#glow2)" />
+        <!-- GPS antenna -->
+        <line x1="250" y1="220" x2="250" y2="195" stroke="#00ff88" stroke-width="1.5" />
+        <circle cx="250" cy="192" r="5" fill="#0f261a" stroke="#00ff88" stroke-width="1.5" />
+        <!-- Scan line -->
+        <rect x="215" y="237" width="70" height="3" fill="#00ff88" opacity="0.4">
+          <animate attributeName="y" values="237;265;237" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2s" repeatCount="indefinite" />
+        </rect>
+      </svg>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" data-target="40">0</span>
+        <div class="stat-label">% menos agroquímicos</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="5">0</span>
+        <div class="stat-label">tipos de sensores</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="3">0</span>
+        <div class="stat-label">tipos de drones</div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span class="scroll-text">Desplázate</span>
+    </div>
+  </section>
+
+  <!-- QUÉ ES UN DRON -->
+  <section id="que-es">
+    <div class="section-tag reveal">01 / Definición</div>
+    <h2 class="section-title reveal">¿Qué es un <span class="hl">Dron</span> UAV?</h2>
+
+    <div class="grid-2">
+      <div class="reveal">
+        <p style="font-size:0.85rem; color:var(--muted); line-height:1.9; margin-bottom:1.5rem;">
+          Un <strong style="color:var(--white)">UAV</strong> (Unmanned Aerial Vehicle) es un vehículo aéreo no tripulado
+          controlado remotamente o programado para volar de forma autónoma. En la agricultura de precisión, actúa como
+          plataforma de datos y acción.
+        </p>
+        <p style="font-size:0.85rem; color:var(--muted); line-height:1.9;">
+          Desde fotografía hasta fumigación localizada, los drones reemplazan métodos costosos e imprecisos con vuelos
+          milimétricos guiados por GPS y sensores avanzados.
+        </p>
+
+        <div class="component-list" style="margin-top:2rem;">
+          <div class="comp-item">
+            <span class="comp-icon">⚙️</span>
+            <div>
+              <div class="comp-name">Motores / Hélices</div>
+              <div class="comp-desc">Generan sustentación y permiten el desplazamiento en todas direcciones.</div>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-icon">🧠</span>
+            <div>
+              <div class="comp-name">Controlador de Vuelo</div>
+              <div class="comp-desc">El "cerebro" del dron. Procesa datos de sensores y ejecuta comandos.</div>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-icon">📡</span>
+            <div>
+              <div class="comp-name">GPS</div>
+              <div class="comp-desc">Navegación precisa y autónoma sobre el campo de cultivo.</div>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-icon">📷</span>
+            <div>
+              <div class="comp-name">Sensores</div>
+              <div class="comp-desc">Cámaras RGB, multiespectrales y térmicas para detectar anomalías invisibles al ojo
+                humano.</div>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-icon">🔋</span>
+            <div>
+              <div class="comp-name">Batería</div>
+              <div class="comp-desc">Determina la autonomía de vuelo. Varía de 15 a 60 minutos según el modelo.</div>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-icon">📦</span>
+            <div>
+              <div class="comp-name">Carga Útil</div>
+              <div class="comp-desc">Semillas, fertilizantes, sensores especializados o cámaras de inspección.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANIMATED DRONE SVG DIAGRAM -->
+      <div class="drone-diagram reveal">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="g1">
+              <feGaussianBlur stdDeviation="3" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#00ff88" opacity="0.7" />
+            </marker>
+          </defs>
+
+          <!-- Grid bg -->
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,255,136,0.06)" stroke-width="0.5" />
+            </pattern>
+          </defs>
+          <rect width="400" height="400" fill="url(#grid)" />
+
+          <!-- Drone body -->
+          <rect x="160" y="170" width="80" height="60" rx="6" fill="#0f261a" stroke="#00ff88" stroke-width="1.5"
+            filter="url(#g1)" />
+          <rect x="172" y="180" width="56" height="40" rx="3" fill="#071209" />
+          <!-- Screen on body -->
+          <rect x="178" y="186" width="44" height="28" rx="2" fill="#071209" stroke="#00ff8830" stroke-width="1" />
+          <line x1="178" y1="193" x2="222" y2="193" stroke="#00ff88" stroke-width="0.5" opacity="0.4" />
+          <line x1="178" y1="200" x2="222" y2="200" stroke="#00ff88" stroke-width="0.5" opacity="0.25" />
+          <line x1="178" y1="207" x2="222" y2="207" stroke="#00ff88" stroke-width="0.5" opacity="0.15" />
+
+          <!-- Arms -->
+          <line x1="165" y1="180" x2="95" y2="120" stroke="#00ff8855" stroke-width="3" stroke-linecap="round" />
+          <line x1="235" y1="180" x2="305" y2="120" stroke="#00ff8855" stroke-width="3" stroke-linecap="round" />
+          <line x1="165" y1="220" x2="95" y2="280" stroke="#00ff8855" stroke-width="3" stroke-linecap="round" />
+          <line x1="235" y1="220" x2="305" y2="280" stroke="#00ff8855" stroke-width="3" stroke-linecap="round" />
+
+          <!-- Motors -->
+          <circle cx="95" cy="120" r="15" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#g1)" />
+          <circle cx="305" cy="120" r="15" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#g1)" />
+          <circle cx="95" cy="280" r="15" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#g1)" />
+          <circle cx="305" cy="280" r="15" fill="#0f261a" stroke="#00ff88" stroke-width="2" filter="url(#g1)" />
+
+          <!-- Propellers with rotation animation -->
+          <g transform-origin="95 120" style="animation: spin 0.3s linear infinite">
+            <ellipse cx="95" cy="120" rx="38" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.6" />
+          </g>
+          <g transform-origin="305 120" style="animation: spin 0.3s linear infinite reverse">
+            <ellipse cx="305" cy="120" rx="38" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.6" />
+          </g>
+          <g transform-origin="95 280" style="animation: spin 0.3s linear infinite reverse">
+            <ellipse cx="95" cy="280" rx="38" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.6" />
+          </g>
+          <g transform-origin="305 280" style="animation: spin 0.3s linear infinite">
+            <ellipse cx="305" cy="280" rx="38" ry="5" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.6" />
+          </g>
+
+          <!-- LED -->
+          <circle cx="95" cy="120" r="4" fill="#00ff88" filter="url(#g1)">
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="305" cy="120" r="4" fill="#00ff88" filter="url(#g1)">
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" begin="0.3s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="95" cy="280" r="4" fill="#aaff00" filter="url(#g1)">
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" begin="0.6s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="305" cy="280" r="4" fill="#aaff00" filter="url(#g1)">
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" begin="0.9s" repeatCount="indefinite" />
+          </circle>
+
+          <!-- Camera -->
+          <rect x="185" y="228" width="30" height="22" rx="3" fill="#071209" stroke="#00d4ff" stroke-width="1.5"
+            filter="url(#g1)" />
+          <circle cx="200" cy="239" r="6" fill="#030a06" stroke="#00d4ff" stroke-width="1.5" />
+          <circle cx="200" cy="239" r="3" fill="#00d4ff" opacity="0.4">
+            <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />
+          </circle>
+
+          <!-- Scan beam -->
+          <path d="M185 250 L140 320 L260 320 L215 250 Z" fill="#00d4ff" opacity="0.05" />
+          <line x1="185" y1="250" x2="140" y2="320" stroke="#00d4ff" stroke-width="0.5" opacity="0.3" />
+          <line x1="215" y1="250" x2="260" y2="320" stroke="#00d4ff" stroke-width="0.5" opacity="0.3" />
+
+          <!-- GPS icon -->
+          <circle cx="200" cy="162" r="7" fill="#071209" stroke="#00ff88" stroke-width="1.5" />
+          <line x1="200" y1="169" x2="200" y2="172" stroke="#00ff88" stroke-width="1.5" />
+
+          <!-- Labels -->
+          <text x="48" y="116" font-family="Space Mono" font-size="8" fill="#00ff88" opacity="0.8"
+            text-anchor="middle">MOTOR</text>
+          <text x="200" y="155" font-family="Space Mono" font-size="8" fill="#00ff88" opacity="0.8"
+            text-anchor="middle">GPS</text>
+          <text x="200" y="365" font-family="Space Mono" font-size="8" fill="#00d4ff" opacity="0.8"
+            text-anchor="middle">SENSOR RGB / NDVI</text>
+          <text x="200" y="198" font-family="Space Mono" font-size="7" fill="#00ff88" opacity="0.6"
+            text-anchor="middle">CONTROLADOR</text>
+        </svg>
+        <style>
+          @keyframes spin {
+            from {
+              transform: rotate(0deg)
+            }
+
+            to {
+              transform: rotate(360deg)
+            }
+          }
+        </style>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIPOS -->
+  <section id="tipos">
+    <div class="section-tag reveal">02 / Clasificación</div>
+    <h2 class="section-title reveal">Tipos de <span class="hl">Drones</span></h2>
+
+    <div class="types-grid">
+      <div class="type-card reveal">
+        <span class="bg-num">1</span>
+        <div class="type-img-area">
+          <img src="img/dron_multirotor.png" />
+          <span class="type-img-label">▸ Multirrotor · SK-62</span>
+        </div>
+        <div class="type-name">Multirrotor</div>
+        <p class="type-desc">Vuelan verticalmente con excelente estabilidad. Ideales para monitoreo detallado y zonas
+          pequeñas con obstáculos. Fácil operación y maniobrabilidad superior.</p>
+        <span class="type-badge badge-green">Más popular</span>
+        <div class="type-stats">
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Autonomía</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-green" style="width:35%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Maniobra</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-green" style="width:95%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Costo</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-green" style="width:50%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-card reveal">
+        <span class="bg-num">2</span>
+        <div class="type-img-area">
+          <img src="img/dron_alafija.png" />
+          <span class="type-img-label">▸ Ala Fija · Delair UX11</span>
+        </div>
+        <div class="type-name">Ala Fija</div>
+        <p class="type-desc">Se asemejan a pequeños aviones. Abarcan grandes extensiones en poco tiempo con mayor
+          velocidad. Requieren espacio de despegue y aterrizaje.</p>
+        <span class="type-badge badge-amber">Gran alcance</span>
+        <div class="type-stats">
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Autonomía</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-amber" style="width:90%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Maniobra</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-amber" style="width:50%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Costo</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-amber" style="width:85%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-card reveal">
+        <span class="bg-num">3</span>
+        <div class="type-img-area">
+          <img src="img/dron_hibrido.png" />
+          <span class="type-img-label">▸ Híbrido · YFT-CZ35RC</span>
+        </div>
+        <div class="type-name">Híbrido VTOL</div>
+        <p class="type-desc">Combinan alas fijas y despegue vertical. Equilibran autonomía y precisión, siendo ideales
+          para zonas amplias con múltiples obstáculos.</p>
+        <span class="type-badge badge-sky">Versátil</span>
+        <div class="type-stats">
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Autonomía</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-sky" style="width:70%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Maniobra</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-sky" style="width:80%"></div>
+            </div>
+          </div>
+          <div class="type-stat-row">
+            <span class="stat-bar-label">Costo</span>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill fill-sky" style="width:90%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    # Sección actualizada de compra de drones
+
+```html
+<section id="compra">
+  <div class="section-tag reveal">08 / Comprar</div>
+
+  <h2 class="section-title reveal">
+    ¿Qué quieres <span class="hl">hacer</span>?
+  </h2>
+
+  <p
+    style="margin-top:0.5rem; font-size:0.8rem; color:var(--muted); max-width:500px;"
+    class="reveal"
+  >
+    Elige tu tarea agrícola y te recomendaremos el dron ideal.
+  </p>
+
+  <div class="compra-ui reveal" id="compraWidget">
+
+    <div class="task-grid">
+
+      <button class="task-btn" data-task="fumigar" id="taskFumigar">
+        <span class="task-icon">🌿</span>
+        <span class="task-label">Fumigar / Fertilizar</span>
+      </button>
+
+      <button class="task-btn" data-task="monitorear" id="taskMonitorear">
+        <span class="task-icon">📡</span>
+        <span class="task-label">Monitorear Cultivos</span>
+      </button>
+
+      <button class="task-btn" data-task="sembrar" id="taskSembrar">
+        <span class="task-icon">🌱</span>
+        <span class="task-label">Sembrar / Reforestar</span>
+      </button>
+
+      <button class="task-btn" data-task="mapear" id="taskMapear">
+        <span class="task-icon">🗺️</span>
+        <span class="task-label">Mapeo / Cartografía</span>
+      </button>
+
+      <button class="task-btn" data-task="vigilar" id="taskVigilar">
+        <span class="task-icon">👁️</span>
+        <span class="task-label">Vigilancia / Seguridad</span>
+      </button>
+
+    </div>
+
+    <div class="recommendation-box" id="recommendationBox" style="display:none;">
+
+      <div class="rec-label">▸ Dron recomendado</div>
+
+      <div class="rec-drone-name" id="recDroneName"></div>
+
+      <p class="rec-reason" id="recReason"></p>
+
+      <a
+        class="rec-amazon-btn"
+        id="recAmazonLink"
+        href="#"
+        target="_blank"
+        rel="noopener"
+      >
+        🚀 Ver dron recomendado
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  const droneData = {
+
+    fumigar: {
+      name: "Drone Agrícola de Fumigación",
+      reason:
+        "Ideal para fumigación y fertilización de cultivos gracias a su capacidad de carga y cobertura aérea eficiente.",
+      link:
+        "https://www.amazon.com/-/es/Drone-Frame-plegable-fumigaci%C3%B3n-Rociador/dp/B0G1BFCGQJ/ref=sr_1_1?__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=28ALZOGILSVQA"
+    },
+
+    monitorear: {
+      name: "DJI Mini 4 Pro",
+      reason:
+        "Excelente para monitoreo agrícola, captura aérea y análisis de cultivos con video estabilizado y gran autonomía.",
+      link:
+        "https://www.amazon.com/-/es/DJI-estabilizaci%C3%B3n-transmisi%C3%B3n-autom%C3%A1tico-resistencia/dp/B0CXJDDJ9X/ref=sr_1_1?__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3ME0XOXCFRX0Z"
+    },
+
+    sembrar: {
+      name: "YK-6 Drone Agrícola",
+      reason:
+        "Diseñado para siembra, reforestación y dispersión eficiente de semillas en grandes extensiones.",
+      link:
+        "https://es.newtechstore.eu/producto/yk-6-drone-agricola-para-fumigacion-de-plantas-y-cultivo-de-suelos/?attribute_models=YK6-30"
+    },
+
+    mapear: {
+      name: "DJI Matrice 4E",
+      reason:
+        "Especializado en cartografía, fotogrametría y generación de mapas topográficos de alta precisión.",
+      link:
+        "https://tiendadefotografia.com.co/product/dji-matrice-4e/"
+    },
+
+    vigilar: {
+      name: "DJI Mini 4 Pro",
+      reason:
+        "Perfecto para vigilancia aérea, patrullaje de terrenos y monitoreo de seguridad en cultivos.",
+      link:
+        "https://www.amazon.com/-/es/DJI-estabilizaci%C3%B3n-transmisi%C3%B3n-autom%C3%A1tico-resistencia/dp/B0CXJDDJ9X/ref=sr_1_1?__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3ME0XOXCFRX0Z"
+    }
+  };
+
+  const buttons = document.querySelectorAll('.task-btn');
+
+  const recommendationBox = document.getElementById('recommendationBox');
+  const recDroneName = document.getElementById('recDroneName');
+  const recReason = document.getElementById('recReason');
+  const recAmazonLink = document.getElementById('recAmazonLink');
+
+  buttons.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      button.classList.add('active');
+
+      const task = button.dataset.task;
+      const drone = droneData[task];
+
+      recDroneName.textContent = drone.name;
+      recReason.textContent = drone.reason;
+      recAmazonLink.href = drone.link;
+
+      recommendationBox.style.display = 'block';
+
+      recommendationBox.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    });
+  });
+</script>
+
+    <div class="compare-section reveal">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Autonomía</th>
+            <th>Maniobrabilidad</th>
+            <th>Uso recomendado</th>
+            <th>Costo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-name">🚁 Multirrotor</td>
+            <td>
+              <div class="dots">
+                <div class="dot on-g"></div>
+                <div class="dot on-g"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </td>
+            <td>
+              <div class="dots">
+                <div class="dot on-g"></div>
+                <div class="dot on-g"></div>
+                <div class="dot on-g"></div>
+                <div class="dot on-g"></div>
+                <div class="dot on-g"></div>
+              </div>
+            </td>
+            <td>Fincas medianas, monitoreo puntual</td>
+            <td>💵 Medio</td>
+          </tr>
+          <tr>
+            <td class="td-name">✈️ Ala Fija</td>
+            <td>
+              <div class="dots">
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+              </div>
+            </td>
+            <td>
+              <div class="dots">
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+                <div class="dot on-a"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </td>
+            <td>Grandes cultivos, mapas extensos</td>
+            <td>💵💵 Alto</td>
+          </tr>
+          <tr>
+            <td class="td-name">🛸 Híbrido VTOL</td>
+            <td>
+              <div class="dots">
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot"></div>
+              </div>
+            </td>
+            <td>
+              <div class="dots">
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot on-s"></div>
+                <div class="dot"></div>
+              </div>
+            </td>
+            <td>Zonas amplias con obstáculos</td>
+            <td>💵💵 Alto</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- APLICACIONES -->
+  <section id="aplicaciones">
+    <div class="section-tag reveal">03 / Usos</div>
+    <h2 class="section-title reveal">Aplicaciones en la <span class="hl">Agricultura</span></h2>
+
+    <div class="apps-grid">
+      <div class="app-card reveal">
+        <img class="app-img" src="img/monitoreo_cultivos.jpg" alt="Monitoreo NDVI con dron" loading="lazy"
+          onerror="this.style.display='none'" />
+        <div class="app-number">APP·01</div>
+        <div class="app-title">Monitoreo de Cultivos</div>
+        <p class="app-desc">Detectan enfermedades tempranas, identifican zonas con falta de agua o nutrientes y generan
+          mapas 2D y 3D del estado del cultivo en tiempo real.</p>
+        <span class="app-tag">▸ Sensores RGB · Térmicos · NDVI</span>
+      </div>
+
+      <div class="app-card reveal">
+        <img class="app-img" src="img/mapeo_cultivos.jpg" alt="Mapeo agrícola con dron" loading="lazy"
+          onerror="this.style.display='none'" />
+        <div class="app-number">APP·02</div>
+        <div class="app-title">Mapeo Agrícola</div>
+        <p class="app-desc">Generación de índices NDVI para medir vigor vegetativo, modelos topográficos del terreno y
+          detección precisa de malezas y zonas degradadas.</p>
+        <span class="app-tag">▸ Fotogrametría · GIS · NDVI</span>
+      </div>
+
+      <div class="app-card reveal">
+        <img class="app-img" src="img/fumigacion_drones.png" alt="Dron fumigando cultivos" loading="lazy"
+          onerror="this.style.display='none'" />
+        <div class="app-number">APP·03</div>
+        <div class="app-title">Fumigación & Fertilización</div>
+        <p class="app-desc">Aplicación precisa y localizada de agroquímicos. Reduce el uso de agua y químicos hasta un
+          40% y minimiza el contacto humano con sustancias tóxicas.</p>
+        <span class="app-tag">▸ Boquillas · Depósitos · GPS RTK</span>
+      </div>
+
+      <div class="app-card reveal">
+        <img class="app-img" src="img/siembra_drones.jpg" alt="Dron sembrando cultivos" loading="lazy"
+          onerror="this.style.display='none'" />
+        <div class="app-number">APP·04</div>
+        <div class="app-title">Siembra con Dron</div>
+        <p class="app-desc">Técnicas de dispersión controlada de semillas y bolas de semillas. Permite sembrar en zonas
+          de difícil acceso con patrones de distribución optimizados.</p>
+        <span class="app-tag">▸ Dispersión controlada · Reforestación</span>
+      </div>
+
+      <div class="app-card reveal">
+        <img class="app-img" src="img/vigilancia_drones.jpg" alt="Dron de vigilancia agrícola" loading="lazy"
+          onerror="this.style.display='none'" />
+        <div class="app-number">APP·05</div>
+        <div class="app-title">Vigilancia & Seguridad</div>
+        <p class="app-desc">Control perimetral automatizado y protección de cultivos contra intrusos, animales
+          silvestres y vandalismo. Monitoreo nocturno con cámaras térmicas.</p>
+        <span class="app-tag">▸ Cámara IR · Patrullaje autónomo</span>
+      </div>
+
+      <div class="app-card reveal" style="background: rgba(0,255,136,0.04); border-color: rgba(0,255,136,0.25);">
+        <div class="app-number" style="color:var(--lime)">DATOS</div>
+        <span class="app-icon">📊</span>
+        <div class="app-title" style="color:var(--green)">Impacto Medible</div>
+        <p class="app-desc">La adopción de drones en agricultura reduce costos operativos, optimiza el uso de recursos
+          hídricos y permite decisiones basadas en datos precisos.</p>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div
+            style="text-align:center; padding:0.75rem; background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.15)">
+            <div style="font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900; color:var(--green)">-40%
+            </div>
+            <div style="font-size:0.55rem; color:var(--muted); margin-top:0.25rem; letter-spacing:0.1em;">AGROQUÍMICOS
+            </div>
+          </div>
+          <div
+            style="text-align:center; padding:0.75rem; background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.15)">
+            <div style="font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900; color:var(--sky)">+30%
+            </div>
+            <div style="font-size:0.55rem; color:var(--muted); margin-top:0.25rem; letter-spacing:0.1em;">EFICIENCIA
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BIOINSPIRACIÓN -->
+  <section id="bioinspiración">
+    <div class="section-tag reveal">04 / Biomímesis</div>
+    <h2 class="section-title reveal">Inspirados en la <span class="hl">Naturaleza</span></h2>
+
+    <div class="bio-layout">
+      <div class="bio-organism">
+        <div class="organism-card reveal">
+          <div class="org-emoji">🐝</div>
+          <div>
+            <div class="org-name">Abejas — Polinización</div>
+            <div class="org-concept">Rutas eficientes · Detección de zonas críticas</div>
+            <p class="org-desc">Las abejas optimizan rutas de recolección con mínimo gasto energético. Los drones
+              replican este comportamiento para planificar vuelos eficientes y detectar zonas del cultivo que requieren
+              intervención, como ocurre con la polinización dirigida.</p>
+          </div>
+        </div>
+
+        <div class="organism-card reveal">
+          <div class="org-emoji">🐜</div>
+          <div>
+            <div class="org-name">Hormigas — Distribución</div>
+            <div class="org-concept">Redes organizadas · Trabajo colaborativo en flota</div>
+            <p class="org-desc">Las colonias de hormigas distribuyen recursos de forma descentralizada y eficiente. Las
+              flotas de drones coordinados replican este modelo: cada unidad cubre una zona y comparte datos con las
+              demás para optimizar la cobertura del cultivo.</p>
+          </div>
+        </div>
+
+        <div class="organism-card reveal">
+          <div class="org-emoji">🦅</div>
+          <div>
+            <div class="org-name">Aves — Monitoreo Aéreo</div>
+            <div class="org-concept">Planeo eficiente · Visión de grandes áreas</div>
+            <p class="org-desc">Las aves rapaces planean con mínimo gasto energético mientras monitoran grandes
+              extensiones. Este principio inspiró el diseño de drones de ala fija, que aprovechan la sustentación
+              aerodinámica para cubrir cientos de hectáreas en un solo vuelo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bio-benefits reveal">
+        <div class="benefit-title">▸ Beneficios Ambientales</div>
+        <div class="benefit-item">Reducción significativa del uso de agroquímicos</div>
+        <div class="benefit-item">Optimización del consumo hídrico en riego</div>
+        <div class="benefit-item">Menor compactación y daño al suelo</div>
+        <div class="benefit-item">Aumento de productividad sin ampliar áreas</div>
+        <div class="benefit-item">Detección temprana de plagas y enfermedades</div>
+        <div class="benefit-item">Menor huella de carbono operativa</div>
+        <div class="benefit-item">Menor exposición humana a pesticidas</div>
+
+        <div class="bio-quote">
+          <p>"Los drones no son solo herramientas tecnológicas, sino sistemas inspirados en principios biológicos
+            optimizados por millones de años de evolución: eficiencia energética, cooperación y adaptación al entorno."
+          </p>
+        </div>
+
+        <!-- MINI DIAGRAM -->
+        <div style="margin-top:2rem;">
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; opacity:0.9">
+            <defs>
+              <filter id="gf">
+                <feGaussianBlur stdDeviation="3" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- Central drone -->
+            <circle cx="160" cy="90" r="30" fill="#0f261a" stroke="#00ff88" stroke-width="1.5" filter="url(#gf)" />
+            <text x="160" y="87" text-anchor="middle" font-family="Space Mono" font-size="7" fill="#00ff88">DRON</text>
+            <text x="160" y="97" text-anchor="middle" font-family="Space Mono" font-size="7" fill="#00ff8888">UAV</text>
+            <!-- Bio nodes -->
+            <circle cx="60" cy="40" r="22" fill="#071209" stroke="#aaff00" stroke-width="1.5" />
+            <text x="60" y="37" text-anchor="middle" font-size="14">🐝</text>
+            <text x="60" y="52" text-anchor="middle" font-family="Space Mono" font-size="6" fill="#aaff00">ABEJA</text>
+            <circle cx="260" cy="40" r="22" fill="#071209" stroke="#00d4ff" stroke-width="1.5" />
+            <text x="260" y="37" text-anchor="middle" font-size="14">🦅</text>
+            <text x="260" y="52" text-anchor="middle" font-family="Space Mono" font-size="6" fill="#00d4ff">AVE</text>
+            <circle cx="160" cy="165" r="22" fill="#071209" stroke="#ff4466" stroke-width="1.5" />
+            <text x="160" y="162" text-anchor="middle" font-size="14">🐜</text>
+            <text x="160" y="177" text-anchor="middle" font-family="Space Mono" font-size="6"
+              fill="#ff4466">HORMIGA</text>
+            <!-- Lines -->
+            <line x1="80" y1="55" x2="135" y2="75" stroke="#aaff00" stroke-width="1" stroke-dasharray="4,3"
+              opacity="0.6" />
+            <line x1="240" y1="55" x2="185" y2="75" stroke="#00d4ff" stroke-width="1" stroke-dasharray="4,3"
+              opacity="0.6" />
+            <line x1="160" y1="143" x2="160" y2="120" stroke="#ff4466" stroke-width="1" stroke-dasharray="4,3"
+              opacity="0.6" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="practicas">
+    <div class="section-tag reveal">05 / Operación</div>
+    <h2 class="section-title reveal">Buenas <span class="hl">Prácticas</span></h2>
+    <p style="margin-top:1rem; font-size:0.75rem; color:var(--muted); max-width:500px;" class="reveal">Haz clic en cada
+      ítem para marcarlo como completado. Lista interactiva de verificación pre/durante/post vuelo.</p>
+
+    <div class="checklist-grid">
+      <div class="checklist-phase reveal">
+        <div class="phase-header">
+          <span class="phase-icon">🔍</span>
+          <span class="phase-name">Antes del Vuelo</span>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Revisar condiciones climáticas y viento
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Verificar carga completa de batería
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Chequear hélices y estructura del dron
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Planificar y programar la ruta de vuelo
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Calibrar sensores y GPS
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Verificar espacio aéreo y regulaciones
+        </div>
+      </div>
+
+      <div class="checklist-phase reveal">
+        <div class="phase-header">
+          <span class="phase-icon">🚀</span>
+          <span class="phase-name">Durante el Vuelo</span>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Mantener línea de visión directa
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Evitar zonas con personas o animales
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>No volar sobre carreteras o vías
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Monitorear nivel de batería
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Verificar señal GPS estable
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Registrar datos de telemetría
+        </div>
+      </div>
+
+      <div class="checklist-phase reveal">
+        <div class="phase-header">
+          <span class="phase-icon">✅</span>
+          <span class="phase-name">Después del Vuelo</span>
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Guardar y respaldar datos capturados
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Limpieza completa del equipo
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Registrar problemas o fallas detectadas
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Cargar batería para próximo vuelo
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Analizar datos recolectados
+        </div>
+        <div class="check-item" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"></div>Generar reporte de la misión
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GLOSARIO -->
+  <section id="glosario">
+    <div class="section-tag reveal">06 / Términos</div>
+    <h2 class="section-title reveal"><span class="hl">Glosario</span> Técnico</h2>
+
+    <div class="glosario-grid">
+      <div class="glos-item reveal">
+        <div class="glos-term">Dron / UAV</div>
+        <div class="glos-def">Vehículo aéreo no tripulado controlado remotamente o de forma autónoma. Sigla en inglés de
+          <em>Unmanned Aerial Vehicle</em>.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">NDVI</div>
+        <div class="glos-def">Índice de Vegetación de Diferencia Normalizada. Mide el vigor y estado sanitario de los
+          cultivos mediante análisis de reflectancia espectral.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">Sensores Multiespectrales</div>
+        <div class="glos-def">Detectan rangos de luz invisibles al ojo humano (infrarrojo, ultravioleta). Permiten
+          identificar estrés hídrico o nutricional en plantas.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">Autonomía</div>
+        <div class="glos-def">Tiempo máximo que un dron puede operar con una carga de batería. Varía entre 15 y 60
+          minutos según el modelo y la carga útil.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">Carga Útil</div>
+        <div class="glos-def">Peso máximo que el dron puede transportar además de su propio peso. Incluye sensores,
+          cámaras, fertilizantes o semillas.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">Agricultura de Precisión</div>
+        <div class="glos-def">Conjunto de técnicas que optimizan el uso de recursos (agua, fertilizantes, pesticidas)
+          mediante el análisis de datos georreferenciados del cultivo.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">VTOL</div>
+        <div class="glos-def">Vertical Take-Off and Landing. Capacidad de despegar y aterrizar verticalmente, propia de
+          los drones híbridos de ala fija.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">Biomímesis</div>
+        <div class="glos-def">Disciplina que estudia y aplica principios, estrategias y procesos de los sistemas
+          biológicos para resolver problemas de diseño e ingeniería.</div>
+      </div>
+      <div class="glos-item reveal">
+        <div class="glos-term">GPS RTK</div>
+        <div class="glos-def">Sistema de posicionamiento global con corrección en tiempo real que permite precisión
+          centimétrica. Esencial para fumigación y siembra precisas.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="section-tag reveal">07 / Preguntas</div>
+    <h2 class="section-title reveal">Preguntas <span class="hl">Frecuentes</span></h2>
+
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          ¿Un dron puede reemplazar completamente a un agricultor?
+          <span class="faq-arrow">+</span>
+        </div>
+        <div class="faq-answer">No. El dron es una herramienta de apoyo, no un reemplazo. Puede mejorar la eficiencia
+          operativa, ahorrar tiempo y reducir riesgos de exposición a agroquímicos, pero requiere de un operador
+          capacitado que interprete los datos y tome decisiones agronómicas.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          ¿Qué tan costoso es implementar drones en el campo?
+          <span class="faq-arrow">+</span>
+        </div>
+        <div class="faq-answer">El costo varía según el tipo de dron y los sensores requeridos. Un multirrotor básico
+          puede costar desde USD 1.500, mientras que sistemas avanzados con sensores multiespectrales superan los USD
+          15.000. Sin embargo, la inversión se recupera a mediano plazo gracias a la reducción de insumos y mano de
+          obra.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          ¿Los drones dañan los cultivos durante su operación?
+          <span class="faq-arrow">+</span>
+        </div>
+        <div class="faq-answer">No. Su operación es aérea y no requiere contacto físico con las plantas. El único efecto
+          potencial es el viento generado por las hélices durante fumigaciones, que en realidad puede mejorar la
+          penetración de productos en el follaje.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          ¿Necesito licencia para operar un dron agrícola?
+          <span class="faq-arrow">+</span>
+        </div>
+        <div class="faq-answer">Sí. En la mayoría de países, incluyendo Colombia, existen regulaciones de la aeronáutica
+          civil para vuelos profesionales. Se requiere registro del equipo, capacitación del operador y en algunos casos
+          aprobación de planes de vuelo según el área y el tipo de operación.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          ¿Qué tipo de dron es mejor para iniciar en agricultura de precisión?
+          <span class="faq-arrow">+</span>
+        </div>
+        <div class="faq-answer">Para agricultores que se inician, el multirrotor es la opción más recomendada por su
+          facilidad de operación, menor costo inicial y versatilidad. Es ideal para fincas medianas donde se requiere
+          monitoreo detallado por zonas específicas.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">BioDrone</div>
+    <div class="footer-sub">Drones Bioinspirados para una Agricultura Sostenible · Anteproyecto Académico</div>
+    <div class="footer-links">
+      <a href="#hero">Inicio</a>
+      <a href="#tipos">Tipos</a>
+      <a href="#aplicaciones">Aplicaciones</a>
+      <a href="#bioinspiración">Bioinspiración</a>
+      <a href="#practicas">Buenas Prácticas</a>
+      <a href="#glosario">Glosario</a>
+    </div>
+    <div class="footer-copy">Basado en el anteproyecto "Drones como herramienta para una agricultura sostenible" · Todos
+      los derechos reservados</div>
+  </footer>
+
+  <script>
+    // CURSOR
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+    function animRing() {
+      rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+    document.querySelectorAll('a, button, .check-item, .faq-question, .app-card, .type-card, .organism-card, .comp-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; cursor.style.background = '#aaff00'; });
+      el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursor.style.background = '#00ff88'; });
+    });
+
+    // BACKGROUND CANVAS
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W; this.y = Math.random() * H;
+        this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
+        this.r = Math.random() * 1.5 + 0.3;
+        this.a = Math.random() * 0.6 + 0.1;
+        this.color = Math.random() > 0.7 ? '#00d4ff' : (Math.random() > 0.5 ? '#aaff00' : '#00ff88');
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = this.color; ctx.globalAlpha = this.a; ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = '#00ff88'; ctx.globalAlpha = (1 - dist / 100) * 0.08; ctx.lineWidth = 0.5; ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H); ctx.globalAlpha = 1;
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawConnections();
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // COUNTER ANIMATION
+    function animateCount(el, target) {
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(timer); }
+        el.textContent = Math.floor(current);
+      }, 25);
+    }
+    setTimeout(() => {
+      document.querySelectorAll('.stat-num[data-target]').forEach(el => animateCount(el, +el.dataset.target));
+    }, 1200);
+
+    // SCROLL REVEAL
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // TASK-BASED DRONE RECOMMENDATION HANDLER
+    const droneRecommendations = {
+      fumigar: {
+        nombre: 'Multirrotor Agrícola (ej. DJI Agras T40)',
+        razon: 'Los multirrotores agrícolas con tanque de líquido son los más eficientes para fumigación y fertilización precisa. Su vuelo estable permite aplicar agroquímicos de forma uniforme.',
+        url: 'https://www.amazon.com/-/es/Drone-Frame-plegable-fumigaci%C3%B3n-Rociador/dp/B0G1BFCGQJ/ref=sr_1_1?__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=28ALZOGILSVQA&dib=eyJ2IjoiMSJ9.jpnCE5YUVuMBUyIdA3JT5yi8BSU0NMMvIhV2BeOcIOGGF5SrxzhGXP0mBoR9im0REAejhwtae9lCzjU0k6s8ehGe_zvW0W9rP_TpPBJxIkCt9GQcF2kgH_wGStlFeqSy1wiOLDT9GPRLGP2dkueEQ-9Wcb6XoeZPgmGRt8VP-aopQ_QWFsuu4HiuM3Gx2GXE0h4pZ2zHaj_-MPmiaUsdUsngO8fmitRDGJoyQPSwsc8U6ChOWc64B7T71SuOt1eX.5EQrLZ_9I3DaeK5ISWZlfMuNz_TZvitfRXZrIf0zQIQ&dib_tag=se&keywords=dron+para+fumigar&qid=1778766266&sprefix=dron+para+fumiga%2Caps%2C180&sr=8-1'
+      },
+      monitorear: {
+        nombre: 'Dron con Cámara Multiespectral (ej. Parrot Bluegrass)',
+        razon: 'Para monitoreo de cultivos se necesita un dron estable con cámara multiespectral o térmica que capture índices NDVI. El multirrotor permite vuelos lentos y detallados sobre zonas específicas.',
+        url: 'https://www.amazon.com/-/es/DJI-estabilizaci%C3%B3n-transmisi%C3%B3n-autom%C3%A1tico-resistencia/dp/B0CXJDDJ9X/ref=sr_1_1?__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3ME0XOXCFRX0Z&dib=eyJ2IjoiMSJ9.d-vlni4rObr8Ux_-tAvfPl2ZQ0xCGJAilpeexegnY9EFk3BgjAITI9ESfRBcrSVidB_9_Ie1Db9Xd8380EiXVXHvWh_Mmrb4mTt4y6uRWX44JZ1rQIWpga6CH0NNqaG4RObmtDYZ0lGSBB54PI_q7b0QGp2uAG_2v3rfrOsTViuKIRnDbdtkEw3s0KZ5P2qxuam3ppa0N9LuKm1M4Ct7soPumy2hk7zziLf8kh5N3G1BHUB_M2JZcaTUnFkOWhvXCYBFCaTeNeHrs-d-PaWsfck86gvzEcI9etT2xtkdD60.pOTrohG5KwvmbDu5gP-hGMSQAtvCIr2jGgACTu6Wjyg&dib_tag=se&keywords=dron%2Bde%2Bmonitoreo&qid=1778766496&sprefix=dron%2Bde%2Bmonitore%2Caps%2C226&sr=8-1&th=1'
+      },
+      sembrar: {
+        nombre: 'Dron Dispersor de Semillas (ej. DJI Agras T30)',
+        razon: 'Para siembra y reforestación se requiere un dron con sistema de dispersión de semillas. Los modelos VTOL o multirrotores pesados permiten cargar grandes cantidades y cubrir zonas de difícil acceso.',
+        url: 'https://es.newtechstore.eu/producto/yk-6-drone-agricola-para-fumigacion-de-plantas-y-cultivo-de-suelos/?attribute_models=YK6-30&attribute_maximum-capacity=30L&attribute_operating-efficience=240+acres%2Fh&attribute_maximim-load=30+Kg&srsltid=AfmBOooe3G7NKz-bluR_lje9oRrOqNXDCjrwC2QdlskgFabMzpqgIA7trZE'
+      },
+      mapear: {
+        nombre: 'Dron de Ala Fija (ej. senseFly eBee X)',
+        razon: 'El ala fija es ideal para mapeo y cartografía de grandes extensiones. Su autonomía superior (hasta 90 min) permite cubrir cientos de hectáreas en un solo vuelo con cámara fotogramétrica.',
+        url: 'https://tiendadefotografia.com.co/product/dji-matrice-4e/?srsltid=AfmBOop_hCGBKc4qZNN_whN-Y7U3B1qOF-vfTPD0mTJSPyhzEwKZr-7pjzw'
+      },
+      vigilar: {
+        nombre: 'Dron con Cámara Térmica (ej. DJI Matrice 350)',
+        razon: 'Para vigilancia y seguridad se necesita un dron con cámara térmica IR y largo tiempo de vuelo. Permite monitoreo nocturno y patrullaje perimetral autónomo.',
+        url: 'https://skymotion.com.co/products/dji-matrice-400?variant=51208538685757&country=CO&currency=COP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOop4dBbpcLv2yQGdB46foIPfMQ0HKly0EYJcZSoiZRDwH2Y9R0Vwu54s'
+      }
+    };
+
+    document.querySelectorAll('.task-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Highlight selected button
+        document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const task = btn.dataset.task;
+        const rec = droneRecommendations[task];
+        if (rec) {
+          document.getElementById('recDroneName').textContent = rec.nombre;
+          document.getElementById('recReason').textContent = rec.razon;
+          document.getElementById('recAmazonLink').href = rec.url;
+          const box = document.getElementById('recommendationBox');
+          box.style.display = 'block';
+          box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
